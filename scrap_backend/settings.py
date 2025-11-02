@@ -43,13 +43,32 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Librerías de terceros
-    'rest_framework',         
+    'rest_framework',   
+    'rest_framework.authtoken',      
     'corsheaders',           
     
     # Tus apps
     'usuarios',
     'productos',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+
+    'DATETIME_FORMAT': "%d-%m-%Y %H:%M:%S",
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
