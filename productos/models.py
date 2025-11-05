@@ -80,16 +80,12 @@ class Producto(models.Model):
         db_column='id_categoria',
         verbose_name='ID Categoria'
     )
-    imagen = models.ImageField(
-        upload_to='productos/', blank=True, null=True,
-        db_column='imagen',
-        verbose_name='Imagen del Producto'
-    )
 
     def __str__(self):
         return self.nombre
     
     class Meta:
+        db_table = 'PRODUCTOS'
         verbose_name = 'Producto'
         verbose_name_plural = 'Productos'
         ordering = ['-fecha_creacion']
@@ -100,7 +96,9 @@ class ImagenProducto(models.Model):
     id_producto = models.ForeignKey(
         Producto, 
         on_delete=models.CASCADE, 
-        related_name='imagenes'
+        related_name='imagenes',
+        db_column='id_producto',
+        verbose_name='ID Producto'
     )
     
     imagen_url = models.URLField(
