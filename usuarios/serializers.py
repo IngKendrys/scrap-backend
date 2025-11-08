@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate
 from .models import Usuario
 
 class UsuarioSerializer(serializers.ModelSerializer):
@@ -12,7 +11,6 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'telefono',
             'direccion',
             'fecha_registro',
-            'usuario',
             'is_active',
             'is_superuser'
         ]
@@ -25,7 +23,6 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
         model = Usuario
         fields = [
             'nombre_negocio',
-            'usuario',
             'correo',
             'password',
             'telefono',
@@ -35,13 +32,22 @@ class RegistroUsuarioSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         usuario = Usuario.objects.create_user(
             nombre_negocio=validated_data['nombre_negocio'],
-            usuario=validated_data['usuario'],
             correo=validated_data['correo'],
             password=validated_data['password'],
             telefono=validated_data['telefono'],
             direccion=validated_data['direccion']
         )
         return usuario
+
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Usuario
+        fields = [
+            'nombre_negocio',
+            'telefono',
+            'direccion',
+            'correo'
+        ]
     
 class LoginSerializer(serializers.Serializer):
     correo = serializers.EmailField()

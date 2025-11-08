@@ -1,7 +1,6 @@
 from rest_framework import permissions
 from rest_framework.authtoken.models import Token
 
-
 class IsAdminWithValidToken(permissions.BasePermission):
     message = 'No tienes permisos de administrador o tu token ha expirado.'
     

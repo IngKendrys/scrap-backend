@@ -61,7 +61,7 @@ class ProductoUpdateView(generics.UpdateAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser or user.is_staff:
+        if user.is_superuser:
             return Producto.objects.all()
         return Producto.objects.filter(id_negocio=user)
 
@@ -73,7 +73,7 @@ class ProductoDeleteView(generics.DestroyAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        if user.is_superuser or user.is_staff:
+        if user.is_superuser:
             return Producto.objects.all()
         return Producto.objects.filter(id_negocio=user)
 
@@ -89,17 +89,14 @@ class MisProductosListView(generics.ListAPIView):
         user = self.request.user
         queryset = Producto.objects.filter(id_negocio=user).select_related('id_categoria')
         
-        # Filtro por categoría
         categoria_id = self.request.query_params.get('categoria', None)
         if categoria_id:
             queryset = queryset.filter(id_categoria=categoria_id)
         
-        # Filtro por estado
         estado = self.request.query_params.get('estado', None)
         if estado:
             queryset = queryset.filter(estado=estado)
         
-        # Filtro por vendido/disponible
         vendido = self.request.query_params.get('vendido', None)
         if vendido is not None:
             vendido_bool = vendido.lower() == 'true'
@@ -165,7 +162,7 @@ class MarcarVendidoView(APIView):
     def patch(self, request, id_producto):
         producto = get_object_or_404(Producto, id_producto=id_producto)
         
-        if not (request.user.is_superuser or request.user.is_staff):
+        if not (request.user.is_superuser):
             if producto.id_negocio != request.user:
                 return Response({
                     'error': 'No tienes permiso para modificar este producto'
@@ -182,13 +179,25 @@ class MarcarVendidoView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-
 class ImagenProductoCreateView(generics.CreateAPIView):
     queryset = ImagenProducto.objects.all()
     serializer_class = ImagenProductoSerializer
     permission_classes = [IsAuthenticated]
 
+    def post(self, request, *args, **kwargs):
+        id_producto = request.data.get('id_producto')
+        imagen = request.FILES.get('imagen_url')  
+
+        if not imagen:
+            return Response({'error': 'No se envió ninguna imagen'}, status=status.HTTP_400_BAD_REQUEST)
+
+        nueva_imagen = ImagenProducto.objects.create(
+            id_producto_id=id_producto,
+            imagen_url=imagen  
+        )
+
+        serializer = ImagenProductoSerializer(nueva_imagen)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class ImagenProductoDeleteView(generics.DestroyAPIView):
     queryset = ImagenProducto.objects.all()

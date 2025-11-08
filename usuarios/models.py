@@ -7,12 +7,11 @@ def validator(value):
     return value.strip()
 
 class UsuarioManager(BaseUserManager):
-    def create_user(self, nombre_negocio, usuario, correo, password, telefono, direccion, **extra_fields):    
+    def create_user(self, nombre_negocio, correo, password, telefono, direccion, **extra_fields):    
         correo = self.normalize_email(correo)
         extra_fields.setdefault('is_active', True)
         user = self.model(
             nombre_negocio=nombre_negocio,
-            usuario=usuario,
             correo=correo,
             telefono=telefono,
             direccion=direccion,
@@ -23,11 +22,11 @@ class UsuarioManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, nombre_negocio, usuario, correo, password, telefono, direccion, **extra_fields):
+    def create_superuser(self, nombre_negocio, correo, password, telefono, direccion, **extra_fields):
         extra_fields.setdefault('is_superuser', True) 
         extra_fields.setdefault('is_active', True)
 
-        return self.create_user(nombre_negocio, usuario, correo, password, telefono, direccion, **extra_fields)
+        return self.create_user(nombre_negocio, correo, password, telefono, direccion, **extra_fields)
 
 class Usuario(AbstractBaseUser, PermissionsMixin):
     id = models.BigAutoField(
@@ -72,14 +71,6 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
         verbose_name='Fecha de Registro'
     )
 
-    usuario = models.CharField(
-        max_length=50, 
-        unique=True,
-        validators=[validator], 
-        db_column='usuario',
-        verbose_name='Nombre de Usuario'
-    )
-
     is_active = models.BooleanField(
         default=True,
         db_column='estado',
@@ -89,7 +80,7 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
     objects = UsuarioManager()
 
     USERNAME_FIELD = 'correo'  
-    REQUIRED_FIELDS = ['usuario', 'nombre_negocio', 'telefono', 'direccion']
+    REQUIRED_FIELDS = ['nombre_negocio', 'telefono', 'direccion']
 
     class Meta:
         db_table = 'USUARIOS' 

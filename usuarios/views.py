@@ -6,11 +6,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import (
     UsuarioSerializer,
     RegistroUsuarioSerializer,
+    ActualizarUsuarioSerializer,
     LoginSerializer
 )
 from .models import Usuario
 from .permissions import IsAdminWithValidToken
-
 
 class RegistroUsuarioView(generics.CreateAPIView):
     queryset = Usuario.objects.all()
@@ -37,6 +37,33 @@ class RegistroUsuarioView(generics.CreateAPIView):
         except Exception as e:
             return Response({
                 'error': 'Error al crear usuario',
+                'details': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ActualizarUsuarioView(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ActualizarUsuarioSerializer
+
+    def put(self, request, pk):
+        usuario = Usuario.objects.get(pk=pk)
+        serializer = ActualizarUsuarioSerializer(usuario, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response({
+                'error': 'Datos inválidos',
+                'details': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            serializer.save()
+            return Response({
+                'message': 'Usuario actualizado exitosamente',
+                'user': UsuarioSerializer(usuario).data,
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                'error': 'Error al actualizar usuario',
                 'details': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -73,6 +100,7 @@ class LogoutUsuarioView(APIView):
     
     def post(self, request):
         try:
+            print(request.user)
             request.user.auth_token.delete()
             mensaje = f'Logout exitoso para {request.user.correo}'
             
@@ -89,25 +117,6 @@ class LogoutUsuarioView(APIView):
             'message': mensaje,
             'info': 'Tu token ha sido invalidado. Debes iniciar sesión nuevamente para obtener uno nuevo.'
         }, status=status.HTTP_200_OK)
-
-
-class PerfilView(generics.RetrieveUpdateAPIView):
-    serializer_class = UsuarioSerializer
-    permission_classes = [IsAuthenticated]
-    
-    def get_object(self):
-        return self.request.user
-    
-    def update(self, request, *args, **kwargs):
-        campos_bloqueados = ['is_superuser']
-        
-        for campo in campos_bloqueados:
-            if campo in request.data:
-                return Response({
-                    'error': f'No puedes modificar el campo: {campo}'
-                }, status=status.HTTP_403_FORBIDDEN)
-        
-        return super().update(request, *args, **kwargs)
 
 
 class ListarUsuariosView(generics.ListAPIView):

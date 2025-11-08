@@ -9,10 +9,17 @@ class CategoriaSerializer(serializers.ModelSerializer):
         read_only_fields = ['id_categoria']
 
 class ImagenProductoSerializer(serializers.ModelSerializer):
+    imagen_url = serializers.SerializerMethodField()
+
     class Meta:
         model = ImagenProducto
         fields = ['id_imagen', 'imagen_url', 'id_producto']
-        read_only_fields = ['id_imagen']
+
+    def get_imagen_url(self, obj):
+        request = self.context.get('request')
+        if request and obj.imagen_url:
+            return request.build_absolute_uri(obj.imagen_url.url)
+        return None
 
 class ProductoSerializer(serializers.ModelSerializer):
     categoria_nombre = serializers.CharField(
@@ -23,22 +30,26 @@ class ProductoSerializer(serializers.ModelSerializer):
         source='id_negocio.nombre_negocio',
         read_only=True
     )
+
+    imagenes = ImagenProductoSerializer(many=True, read_only=True)
+
     
     class Meta:
         model = Producto
         fields = [
             'id_producto',
             'nombre',
+            'descripcion',
             'precio',
             'cantidad',
             'estado',
             'vendido',
             'categoria_nombre',
             'negocio_nombre',
-            'fecha_creacion'
+            'fecha_creacion',
+            'imagenes'
         ]
         read_only_fields = ['id_producto', 'fecha_creacion']
-
 
 class ProductoDetailSerializer(ProductoSerializer):
     categoria = CategoriaSerializer(source='id_categoria', read_only=True)
@@ -53,7 +64,6 @@ class ProductoDetailSerializer(ProductoSerializer):
             'imagen'  
         ]
 
-
 class ProductoCreateSerializer(serializers.ModelSerializer):
     imagenes_urls = serializers.ListField(
         child=serializers.URLField(max_length=500),
@@ -65,6 +75,7 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
         fields = [
+            'id_producto',
             'nombre',
             'descripcion',
             'precio',
@@ -98,7 +109,6 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             )
         
         return producto
-
 
 class ProductoUpdateSerializer(serializers.ModelSerializer):
     imagenes_urls = serializers.ListField(
@@ -147,8 +157,6 @@ class ProductoUpdateSerializer(serializers.ModelSerializer):
         
         return instance
 
-
-class MarcarVendidoSerializer(serializers.Serializer):
     vendido = serializers.BooleanField(required=True)
     
     def update(self, instance, validated_data):

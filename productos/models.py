@@ -26,7 +26,6 @@ class Categoria(models.Model):
         verbose_name = 'Categoria'
         verbose_name_plural = 'Categorias'
         ordering = ['nombre']
-
     
 class Producto(models.Model):
     id_producto = models.AutoField(
@@ -90,7 +89,6 @@ class Producto(models.Model):
         verbose_name_plural = 'Productos'
         ordering = ['-fecha_creacion']
 
-
 class ImagenProducto(models.Model):
     id_imagen = models.AutoField(primary_key=True)
     id_producto = models.ForeignKey(
@@ -101,7 +99,8 @@ class ImagenProducto(models.Model):
         verbose_name='ID Producto'
     )
     
-    imagen_url = models.URLField(
+    imagen_url = models.ImageField(
+        upload_to='productos/',
         max_length=500,
         db_column='imagen_url',
         verbose_name='URL de la Imagen',
