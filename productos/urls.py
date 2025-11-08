@@ -9,10 +9,6 @@ from productos.views import (
     ProductoDeleteView,
     
     MisProductosListView,
-    ProductosPorCategoriaView,
-    ProductosPorEstadoView,
-    ProductosVendidosView,
-    ProductosDisponiblesView,
 
     ImagenProductoCreateView,
     ImagenProductoDeleteView,
@@ -30,14 +26,7 @@ urlpatterns = [
     path('eliminar/<int:id_producto>/', ProductoDeleteView.as_view(), name='producto-delete'),
     
     path('mis-productos/', MisProductosListView.as_view(), name='mis-productos'),
-    
-    path('categoria/<int:id_categoria>/', ProductosPorCategoriaView.as_view(), name='productos-por-categoria'),
-    
-    path('estado/<str:estado>/', ProductosPorEstadoView.as_view(), name='productos-por-estado'),
-    
-    path('vendidos/', ProductosVendidosView.as_view(), name='productos-vendidos'),
-    path('disponibles/', ProductosDisponiblesView.as_view(), name='productos-disponibles'),
-        
+                    
     path('imagenes/crear/', ImagenProductoCreateView.as_view(), name='imagen-create'),
     path('imagenes/<int:id_imagen>/eliminar/', ImagenProductoDeleteView.as_view(), name='imagen-delete'),
 ]
