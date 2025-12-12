@@ -45,7 +45,9 @@ class Producto(models.Model):
         verbose_name='Descripción del Producto'
     )
     precio = models.DecimalField(
-        max_digits=10, decimal_places=2, validators=[validator],
+        max_digits=10, 
+        decimal_places=2, 
+        validators=[validator],
         db_column='precio',
         verbose_name='Precio del Producto'
     )

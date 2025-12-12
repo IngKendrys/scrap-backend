@@ -117,7 +117,9 @@ class ProductoUpdateSerializer(serializers.ModelSerializer):
         required=False,
         help_text="Agregar nuevas URLs de imágenes"
     )
-    
+
+    vendido = serializers.BooleanField(required=True)
+
     class Meta:
         model = Producto
         fields = [
@@ -130,45 +132,34 @@ class ProductoUpdateSerializer(serializers.ModelSerializer):
             'id_categoria',
             'imagenes_urls'
         ]
-    
+
     def validate_precio(self, value):
         if value <= 0:
             raise serializers.ValidationError("El precio debe ser mayor a 0.")
         return value
-    
+
     def validate_cantidad(self, value):
         if value < 0:
             raise serializers.ValidationError("La cantidad debe ser mayor o igual a 0.")
         return value
-    
+
     def update(self, instance, validated_data):
-        imagenes_urls = validated_data.pop('imagenes_urls', [])
-        
+        vendido = validated_data.pop('vendido', None)
+
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-        
+
+        if vendido is not None:
+            if vendido:
+                instance.vendido = True
+                instance.fecha_vendido = timezone.now()
+                instance.cantidad = instance.cantidad - 1 if instance.cantidad > 0 else 0
+            else:
+                instance.vendido = False
+                instance.fecha_vendido = None
+
         instance.save()
-        
-        for url in imagenes_urls:
-            ImagenProducto.objects.create(
-                id_producto=instance,
-                imagen_url=url
-            )
-        
+
         return instance
 
-    vendido = serializers.BooleanField(required=True)
-    
-    def update(self, instance, validated_data):
-        vendido = validated_data.get('vendido')
-        
-        if vendido:
-            instance.vendido = True
-            instance.fecha_vendido = timezone.now()
-            instance.cantidad = instance.cantidad - 1 if instance.cantidad > 0 else 0
-        else:
-            instance.vendido = False
-            instance.fecha_vendido = None
-        
-        instance.save()
-        return instance
+

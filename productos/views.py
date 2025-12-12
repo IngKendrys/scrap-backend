@@ -109,6 +109,7 @@ class ImagenProductoCreateView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        print(request.data)
         id_producto = request.data.get('id_producto')
         imagen = request.FILES.get('imagen_url')  
 
