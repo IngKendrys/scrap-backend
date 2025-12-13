@@ -18,7 +18,9 @@ SECRET_KEY = 'django-insecure-g2kx-7l4f2ji10n6gptu5=8!eo+1jmk0riilg_++-mo=)5j^x&
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "scrap-backend-px9j.onrender.com"
+    "scrap-backend-px9j.onrender.com",
+    "localhost",
+
 ]
 
 # Application definition
@@ -71,7 +73,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",      
+    "http://localhost:3000",  
+    "https://scrap-frontend-amber.vercel.app",
+    
 ]
 
 CORS_ALLOW_CREDENTIALS = True
